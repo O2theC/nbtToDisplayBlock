@@ -12,12 +12,6 @@ except:
     from nbt import nbt
 
 
-def convertNBT(
-    filePath,
-):
-    None
-
-
 settings = sg.UserSettings(filename="./config.json", autosave=True)
 
 filePath = settings.get("nbtFilePath", os.getcwd())
@@ -26,6 +20,12 @@ filePath = filePath.replace("\\\\", "\\").replace("\\", "/")
 folderPath = folderPath.replace("\\\\", "\\").replace("\\", "/")
 settings.set("nbtFilePath", filePath)
 settings.set("datapackFolderPath", folderPath)
+
+blocksPer = settings.get("blocksPer", 1)
+settings.set("blocksPer", blocksPer)
+
+tickDelay = settings.get("tickDelay", 0)
+settings.set("tickDelay", tickDelay)
 
 
 layout = [
@@ -51,9 +51,9 @@ layout = [
         sg.FolderBrowse(initial_folder=folderPath),
     ],
     [
-        sg.Input("1", size=(10, None), key="blocksPer", enable_events=True),
+        sg.Input(str(blocksPer), size=(10, None), key="blocksPer", enable_events=True),
         sg.Text(" blocks every "),
-        sg.Input("0", size=(10, None), key="tickTimer", enable_events=True),
+        sg.Input(str(tickDelay), size=(10, None), key="tickDelay", enable_events=True),
         sg.Text(" tick(s)"),
     ],
     [sg.Button("Convert")],
@@ -76,6 +76,13 @@ while True:
         if os.path.isdir(folderPathMaybe):
             folderPath = folderPathMaybe
             settings.set("datapackFolderPath", folderPath)
+        
+        blocksPer = values["blocksPer"]
+        tickDelay = values["tickDelay"]
+        blocksPer = re.sub(r"[^0-9]", "", blocksPer)
+        tickDelay = re.sub(r"[^0-9]", "", tickDelay)
+        settings.set("blocksPer", blocksPer)
+        settings.set("tickDelay", tickDelay)
     except:
         None
 
@@ -110,9 +117,9 @@ while True:
         except:
             blocksPer = -1
         try:
-            tickTimer = int(window["tickTimer"].get())
+            tickDelay = int(window["tickDelay"].get())
         except:
-            tickTimer = -1
+            tickDelay = -1
         if blocksPer <= 0:
             sg.Window(
                 "Number Error",
@@ -123,7 +130,7 @@ while True:
                 disable_close=True,
             ).read(close=True)
             continue
-        if tickTimer < 0:
+        if tickDelay < 0:
             sg.Window(
                 "Number Error",
                 [
@@ -134,7 +141,7 @@ while True:
             ).read(close=True)
             continue
         start = time.time()
-        if tickTimer == 0:
+        if tickDelay == 0:
             oneFile = True
         else:
             oneFile = False
@@ -371,25 +378,28 @@ while True:
                 )
             except:
                 None
-            os.mkdir(
-                os.path.join(
-                    datapackFolderPath,
-                    "nbtToBlockDisplay",
-                    "data",
-                    fileName,
-                    "functions",
-                    "commands",
+            try:
+                os.mkdir(
+                    os.path.join(
+                        datapackFolderPath,
+                        "nbtToBlockDisplay",
+                        "data",
+                        fileName,
+                        "functions",
+                        "commands",
+                    )
                 )
-            )
+            except:
+                None
             num = 1
             com = 0
             leng = len(commands)
             blocksPer
-            tickTimer
+            tickDelay
             barCount = 0
-            for meow in range(blocksPer):
-                if(meow < len(commands)):
-                    commands[meow] = f"execute positioned 0. 88 0. run {commands[meow]}"
+            # for meow in range(blocksPer):
+            #     if(meow < len(commands)):
+            #         commands[meow] = f"execute positioned 0. 88 0. run {commands[meow]}"
             while com < leng:
                 with open(
                     os.path.join(
@@ -403,30 +413,24 @@ while True:
                     ),
                     "w",
                 ) as f:
+                    if(num == 1):
+                        standNBT = "{"+f'NoGravity:1b,Tags:["{fileName}.{num}"],Marker:1b,Invisible:1b'+"}" # python doesn't like it if i stack this in the line below, so i use a var to seperate them
+                        f.write(f'summon armor_stand ~ ~ ~ {standNBT}\n')
                     for _ in range(blocksPer):
                         if com >= leng:
+                            f.write(f"execute as @e[tag={fileName}.{num}] run kill @s\n")
+                            f.write("say Done\n")
                             break
-                        f.write(str(commands[com]) + "\n")
+                        f.write(f"execute as @e[tag={fileName}.{num}] at @s run {commands[com]}\n")
                         barCount+=1
                         if(barCount%100 == 0):
                             window["bar"].update(current_count = barCount)
                             window.read(timeout=1)
                         com += 1
-                    f.write(f"schedule function {fileName}:commands/{num+1} {tickTimer}t")
+                    f.write(f'execute as @e[tag={fileName}.{num}] run tag @s add {fileName}.{num+1}\n')
+                    f.write(f'execute as @e[tag={fileName}.{num}] run tag @s remove {fileName}.{num}\n')
+                    f.write(f"schedule function {fileName}:commands/{num+1} {tickDelay}t\n")
                 num += 1
-            with open(
-                    os.path.join(
-                        datapackFolderPath,
-                        "nbtToBlockDisplay",
-                        "data",
-                        fileName,
-                        "functions",
-                        "commands",
-                        f"{num}.mcfunction",
-                    ),
-                    "w",
-                ) as f:
-                f.write("say Done")
             window["bar"].update(current_count = barCount)
             window.read(timeout=1)
             

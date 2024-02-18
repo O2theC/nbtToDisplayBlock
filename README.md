@@ -41,3 +41,4 @@ it may not adjust size or anything for inputs but axoim can take care of that
 - Knarfy for inspiration / motivation for project idea - this video https://www.youtube.com/watch?v=YMooN4S5m6I&pp=ygUGa25hcmZ5
 - PySimpleGUI - amazing library and what i used for the GUI
 - nbt library - couldn't read the .nbt files otherwise
+- PyInstaller for exe version

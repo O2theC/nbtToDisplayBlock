@@ -23,11 +23,24 @@ the datapack folder is a folder in every save/world folder and holds datapacks f
 
 whenever i say that the blocks are placed, they aren't really placed since it's block displays but rather spawned/summoned but placed sounds better rn
 
-the 2 number inputs are for how many blocks should be placed per tick, if the tick count (right box) is 0 then it will place them all at once, if it is more than 1 then it places them based on that delay (NOTE: right now when using a delay, it places the blocks relative to 0 88 0, i have a few ideas on how to fix but i wanted to get this out first), the left box is how many blocks it should place at a time, again if the delay is 0 then it will place all the blocks instantly
+the 2 number inputs are for how many blocks should be placed per tick, if the tick count (right box) is 0 then it will place them all at once, if it is more than 1 then it places them based on that delay, the left box is how many blocks it should place at a time, again if the delay is 0 then it will place all the blocks instantly
 
 press the convert button when your ready to create the datapack, if there are any problems, such as letters in number areas or paths are invaild then a pop up will... pop up, and supply the warning and it will stop and not convert  
 
 the progress bar is a simple way to see how far the script is in making the datapack from the .nbt file
+
+## in Minecraft
+
+enable the datapack using the /datapack command, you may have to /datapack list if it doesn't show up
+if it's already enabled then either disable then enable or do /reload
+
+now for placing the blocks, if you set the delay to 0 ticks then it will all be in 1 function, should be called build, the namespace is based on the name of the .nbt file and if you have a tick delay then it will be a bunch of numbered functions in a folder named commands  
+  
+so for example, we have a file named coolHouse.nbt  
+if you have no delay then it would be /function coolhouse:build  
+if you got a delay then to start it run /function coolhouse:commands/1  
+
+the namespace (coolhouse in the example) will be different to you and is based on the name of the .nbt file  
 
 
 # Why

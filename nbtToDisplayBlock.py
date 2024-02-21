@@ -644,10 +644,10 @@ while True:
                         try:
                             num = thing[: thing.rindex(".")]
                             num = int(num)
-                            if num >= len(commands):
+                            if num >= (len(commands)/blocksPer):
                                 os.remove(thingPath)
                         except BaseException:
-                            None
+                            print(thingPath)
             except BaseException:
                 None
             try:
